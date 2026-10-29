@@ -194,7 +194,7 @@ p { text-wrap: pretty; }
 @media (max-width: 47.9375em) { .topbar { display: none; } }
 
 .site-header {
-  position: sticky; top: 0; z-index: 90;
+  position: sticky; top: 0; z-index: 120;
   background: rgba(255,255,255,.97);
   backdrop-filter: saturate(140%) blur(6px);
   border-bottom: 1px solid var(--line);
@@ -271,12 +271,23 @@ p { text-wrap: pretty; }
     border-left: 1px solid var(--line);
     padding: 1.25rem var(--gut) 2.5rem;
     overflow-y: auto;
-    transform: translateX(100%);
-    transition: transform .25s ease;
     z-index: 120;
     margin-left: 0;
+    /* Kept out of flow entirely while closed: an off-screen translated
+       drawer would extend document scrollWidth and cause sideways scroll. */
+    display: none;
   }
-  .nav[data-open="true"] { transform: translateX(0); }
+  .nav[data-open="true"] {
+    display: block;
+    animation: nav-in .25s ease both;
+  }
+  @keyframes nav-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav[data-open="true"] { animation: none; }
+  }
   .nav__list { flex-direction: column; align-items: stretch; gap: 0; }
   .nav__item { border-bottom: 1px solid var(--line); }
   .nav__link { padding: .9375rem .25rem; font-size: 1.0625rem; min-height: 48px; }
@@ -623,6 +634,9 @@ p { text-wrap: pretty; }
 
 .contact-list { list-style: none; display: grid; gap: 1.125rem; }
 .contact-list li { display: flex; gap: .875rem; align-items: flex-start; }
+/* Long unbreakable values (e.g. the email address) must be allowed to wrap,
+   otherwise their min-content width widens the grid column past the viewport. */
+.contact-list li > * + * { min-width: 0; }
 .contact-list .ico {
   flex: none; width: 44px; height: 44px; border-radius: var(--r-md);
   background: var(--accent-tint); color: var(--accent);
@@ -631,7 +645,7 @@ p { text-wrap: pretty; }
 .section--dark .contact-list .ico { background: var(--graphite-2); color: var(--amber); }
 .contact-list h3 { font-family: var(--font-body); font-size: .8125rem; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-mute); margin-bottom: .1875rem; }
 .section--dark .contact-list h3 { color: #9aa4b0; }
-.contact-list a, .contact-list p { font-size: 1.0625rem; font-weight: 600; color: var(--ink); text-decoration: none; margin: 0; }
+.contact-list a, .contact-list p { font-size: 1.0625rem; font-weight: 600; color: var(--ink); text-decoration: none; margin: 0; overflow-wrap: anywhere; }
 .section--dark .contact-list a, .section--dark .contact-list p { color: #fff; }
 .contact-list a:hover { color: var(--accent); }
 .section--dark .contact-list a:hover { color: var(--amber); }
